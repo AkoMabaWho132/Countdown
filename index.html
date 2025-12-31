@@ -48,21 +48,20 @@ body {
     text-align: center;
     padding: 40px;
 }
-    /* LOGO */
+
+/* LOGO */
 #companyLogo {
     width: clamp(120px, 20vw, 260px);
     display: block;
     margin: 0 auto 8px;
-    animation: fadeInDown 1.2s ease-out;
 }
 
-/* RESPONSIVE TITLE */
+/* TITLE */
 h1 {
     font-size: clamp(60px, 6vw, 80px);
     margin: 5px 0 10px;
     letter-spacing: 4px;
 }
-
 
 /* COUNTDOWN */
 .countdown {
@@ -92,46 +91,40 @@ h1 {
 }
 
 .colon {
-    font-size: clamp(80px, 12vw, 60px);
+    font-size: clamp(60px, 8vw, 80px);
     font-weight: bold;
-    line-height: 1;
     margin-top: 30px;
-    color: #fff;
 }
 
+/* FULLSCREEN BUTTON */
 #fullscreenBtn {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    font-size: 20px;
-    padding: 14px 32px;
+    font-size: 18px;
+    padding: 12px 26px;
     border-radius: 30px;
     border: none;
     cursor: pointer;
-    background: #8d300b09;
-    color: #36242302;
+    background: rgba(255,255,255,0.2);
+    color: white;
     font-weight: bold;
-    z-index: 10; /* stays on top of everything */
-    transition: background 0.3s;
 }
 
-#fullscreenBtn:hover {
-    background: #f3f2ec;
-}
-
-/* ANIMATION FOR HAPPY NEW YEAR */
+/* HAPPY NEW YEAR ANIMATION */
 #newYearMessage {
+    font-size: clamp(90px, 10vw, 140px);
     animation: popGlow 1.5s ease-in-out infinite alternate;
 }
 
 @keyframes popGlow {
-    0% {
+    from {
         transform: scale(1);
         text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff9900;
     }
-    100% {
+    to {
         transform: scale(1.15);
-        text-shadow: 0 0 20px #ffff66, 0 0 40px #ffcc00;
+        text-shadow: 0 0 25px #ffff66, 0 0 45px #ffcc00;
     }
 }
 </style>
@@ -139,21 +132,21 @@ h1 {
 
 <body>
 
-<!-- VIDEO BACKGROUND -->
-<video autoplay muted loop id="bgVideo">
+<!-- BACKGROUND VIDEO -->
+<video id="bgVideo" autoplay muted loop playsinline>
     <source src="Video1.mp4" type="video/mp4">
 </video>
 
 <div class="overlay"></div>
 
 <div class="container">
-    <img src="Logo.png" alt="sedaLogo" id="companyLogo">
-    
+    <img src="Logo.png" alt="Logo" id="companyLogo">
     <h1 id="title">NEW YEAR 2026 COUNTDOWN</h1>
+
     <div class="countdown" id="countdown">
         <div class="time-box">
             <div class="number" id="days">0</div>
-            <div class="label">DAY</div>
+            <div class="label">DAYS</div>
         </div>
         <div class="colon">:</div>
 
@@ -174,97 +167,72 @@ h1 {
             <div class="label">SECONDS</div>
         </div>
     </div>
-
 </div>
+
 <button id="fullscreenBtn" onclick="toggleFullScreen()">⛶ Full Screen</button>
 
 <script>
-    //actual time
-    const targetTimeUTC = Date.UTC(2025, 11, 31, 16, 0, 0);
+/* ===== TARGET TIME (UTC) =====
+   Jan 1, 2026 00:00 GMT+8 example:
+   Date.UTC(2025, 11, 31, 16, 0, 0)
+*/
+const targetTimeUTC = Date.UTC(2025, 11, 31, 16, 0, 0);
 
+const countdownEl = document.getElementById("countdown");
+const titleEl = document.getElementById("title");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-    // ===== TEST MODE: 10-second countdown =====
-    //const targetTimeUTC = Date.now() + 5 * 1000; // 10 seconds from now
+const bgVideo = document.getElementById("bgVideo");
+const videoSource = bgVideo.querySelector("source");
 
-    // Store the interval so we can stop it
-    const countdownInterval = setInterval(updateCountdown, 1000);
+const countdownInterval = setInterval(updateCountdown, 1000);
 
-    function updateCountdown() {
-        const nowUTC = Date.now();
-        const diff = targetTimeUTC - nowUTC;
+function updateCountdown() {
+    const now = Date.now();
+    const diff = targetTimeUTC - now;
 
-        if (diff <= 0) {
-            // Stop the interval to prevent duplicates
-            clearInterval(countdownInterval);
+    if (diff <= 0) {
+        clearInterval(countdownInterval);
 
-            // Hide countdown and title
-            document.getElementById("countdown").style.display = "none";
-            document.getElementById("title").style.display = "none";
-            document.getElementById("title2").style.display = "none";
-            document.getElementById("fullscreenBtn").style.display = "none"; //button disappear
+        countdownEl.style.display = "none";
+        titleEl.style.display = "none";
+        fullscreenBtn.style.display = "none";
 
-            // Show only one Happy New Year message
-            if (!document.getElementById("newYearMessage")) {
-                const message = document.createElement("h3");
-                message.id = "newYearMessage";
-                message.style.fontSize = "clamp(120px,6vw,80px)";
-                message.style.textAlign = "center";
-                message.textContent = "HAPPY NEW YEAR!"; //ibaba ang 2026
-                document.querySelector(".container").appendChild(message);
+        if (!document.getElementById("newYearMessage")) {
+            const message = document.createElement("div");
+            message.id = "newYearMessage";
+            message.textContent = "HAPPY NEW YEAR!";
+            document.querySelector(".container").appendChild(message);
 
-                //new Background Video
-
-                const bgVideo = document.getElementById("Video1.mp4");
-                bgVideo.pause();  // stop current video
-                
-                // Change the video source
-                bgVideo.src = "Coundown.mp4"; // <-- replace with your new video file path
-                bgVideo.load();  // reload the video element to apply new source
-                bgVideo.play();  // play the new video
-                
-                // Make sure video is visible in case it was hidden
-                bgVideo.style.display = "block";
-            }
-
-            return;
+            // Switch background video
+            bgVideo.pause();
+            videoSource.src = "Coundown.mp4";
+            bgVideo.load();
+            bgVideo.play();
         }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-        document.getElementById("days").textContent = days;
-        document.getElementById("hours").textContent = hours.toString().padStart(2, "0");
-        document.getElementById("minutes").textContent = minutes.toString().padStart(2, "0");
-        document.getElementById("seconds").textContent = seconds.toString().padStart(2, "0");
+        return;
     }
 
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
-    }
+    document.getElementById("days").textContent =
+        Math.floor(diff / (1000 * 60 * 60 * 24));
+    document.getElementById("hours").textContent =
+        Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, "0");
+    document.getElementById("minutes").textContent =
+        Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, "0");
+    document.getElementById("seconds").textContent =
+        Math.floor((diff / 1000) % 60).toString().padStart(2, "0");
+}
 
-    // Initial call to display countdown immediately
-    updateCountdown();
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+updateCountdown();
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
