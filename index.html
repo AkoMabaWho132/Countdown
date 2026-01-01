@@ -46,14 +46,33 @@ body {
 /* CONTENT */
 .container {
     text-align: center;
-    padding: 40px;
+    padding: 20px;
+    margin-top: 60px;
+    margin-bottom: 30px;
 }
 
 /* LOGO */
-#companyLogo {
+/* #companyLogo {
+    position: flex;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
     width: clamp(120px, 20vw, 260px);
-    display: block;
-    margin: 0 auto 8px;
+    z-index: 1;
+} */
+
+.logo{
+    position: fixed;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+}
+
+#companyLogo{
+    width: clamp(120px, 20vw, 260px);
 }
 
 /* TITLE */
@@ -80,8 +99,10 @@ h1 {
 }
 
 .number {
+    font-family: Verdana;
     font-size: clamp(48px, 7vw, 90px);
     font-weight: bold;
+    line-height: 1.2;
 }
 
 .label {
@@ -106,9 +127,13 @@ h1 {
     border-radius: 30px;
     border: none;
     cursor: pointer;
-    background: rgba(255,255,255,0.2);
-    color: white;
+    background: rgba(61, 31, 10, 0.37);
+    color: rgba(228, 226, 226, 0.178);
     font-weight: bold;
+}
+#fullscreenBtn:hover {
+    background: rgba(119, 43, 7, 0.767);
+    transform: scale(1.08);
 }
 
 /* HAPPY NEW YEAR ANIMATION */
@@ -139,14 +164,17 @@ h1 {
 
 <div class="overlay"></div>
 
-<div class="container">
+<div class="logo">
     <img src="Logo.png" alt="Logo" id="companyLogo">
+</div>
+
+<div class="container">
     <h1 id="title">NEW YEAR 2027 COUNTDOWN</h1>
 
     <div class="countdown" id="countdown">
         <div class="time-box">
             <div class="number" id="days">0</div>
-            <div class="label">DAYS</div>
+            <div class="label">DAY/S</div>
         </div>
         <div class="colon">:</div>
 
@@ -171,12 +199,19 @@ h1 {
 
 <button id="fullscreenBtn" onclick="toggleFullScreen()">⛶ Full Screen</button>
 
+<audio id="voice30min" src="30mins.MP3" preload="auto"></audio>
+
+
 <script>
+
+// ===== TEST MODE: 10-second countdown =====
+const targetTimeUTC = Date.now() + 1801 * 1000; // 10 seconds from now
+
 /* ===== TARGET TIME (UTC) =====
    Jan 1, 2026 00:00 GMT+8 example:
    Date.UTC(2025, 11, 31, 16, 0, 0)
 */
-const targetTimeUTC = Date.UTC(2026, 11, 31, 16, 0, 0);
+//const targetTimeUTC = Date.UTC(2026, 11, 31, 16, 0, 0);
 
 const countdownEl = document.getElementById("countdown");
 const titleEl = document.getElementById("title");
@@ -185,7 +220,12 @@ const fullscreenBtn = document.getElementById("fullscreenBtn");
 const bgVideo = document.getElementById("bgVideo");
 const videoSource = bgVideo.querySelector("source");
 
+const audio30 = document.getElementById("voice30min");
+let played30 = false; // make sure it only plays once
+
 const countdownInterval = setInterval(updateCountdown, 1000);
+
+
 
 function updateCountdown() {
     const now = Date.now();
@@ -193,7 +233,6 @@ function updateCountdown() {
 
     if (diff <= 0) {
         clearInterval(countdownInterval);
-
         countdownEl.style.display = "none";
         titleEl.style.display = "none";
         fullscreenBtn.style.display = "none";
@@ -204,7 +243,6 @@ function updateCountdown() {
             message.textContent = "HAPPY NEW YEAR!";
             document.querySelector(".container").appendChild(message);
 
-            // Switch background video
             bgVideo.pause();
             videoSource.src = "Coundown.mp4";
             bgVideo.load();
@@ -213,6 +251,7 @@ function updateCountdown() {
         return;
     }
 
+    // Update countdown numbers
     document.getElementById("days").textContent =
         Math.floor(diff / (1000 * 60 * 60 * 24));
     document.getElementById("hours").textContent =
@@ -221,7 +260,15 @@ function updateCountdown() {
         Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, "0");
     document.getElementById("seconds").textContent =
         Math.floor((diff / 1000) % 60).toString().padStart(2, "0");
+
+    // Play audio at 30 minutes
+    const minutesLeft = Math.floor(diff / (1000 * 60));
+    if (minutesLeft <= 30 && !played30) {
+        audio30.play();
+        played30 = true;
+    }
 }
+
 
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
@@ -231,10 +278,9 @@ function toggleFullScreen() {
     }
 }
 
+
 updateCountdown();
 </script>
 
 </body>
 </html>
-
-
